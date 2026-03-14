@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct LocationDetailView: View {
     
+    @EnvironmentObject private var vm: LocationsViewModel
     let location: Location
     
     var body: some View {
@@ -22,17 +24,21 @@ struct LocationDetailView: View {
                     Divider()
                     descriptionSection
                     Divider()
+                    mapLayer
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
             }
         }
         .ignoresSafeArea()
+        .background(.ultraThinMaterial)
+        .overlay(backButton, alignment: .topLeading)
     }
 }
 
 #Preview {
     LocationDetailView(location: LocationsDataService.locations.first!)
+        .environmentObject(LocationsViewModel())
 }
 
 extension LocationDetailView {
@@ -74,5 +80,36 @@ extension LocationDetailView {
                     .tint(.blue)
             }
         }
+    }
+    
+    private var mapLayer: some View {
+        Map(coordinateRegion: .constant(MKCoordinateRegion(
+            center: location.coordinates,
+            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))),
+            annotationItems: [location]) { location in
+            MapAnnotation(coordinate: location.coordinates) {
+                LocationMapAnnotationView()
+                    .shadow(radius: 10)
+            }
+        }
+            .allowsHitTesting(false)
+            .aspectRatio(1, contentMode: .fit)
+            .cornerRadius(30)
+    }
+    
+    private var backButton: some View {
+        Button {
+            vm.sheetLocation = nil
+        } label: {
+            Image(systemName: "xmark")
+                .font(.headline)
+                .padding(16)
+                .foregroundStyle(.primary)
+                .background(.thickMaterial)
+                .cornerRadius(10)
+                .shadow(radius: 4)
+                .padding()
+        }
+
     }
 }

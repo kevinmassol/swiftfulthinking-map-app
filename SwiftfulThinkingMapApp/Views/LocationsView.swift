@@ -16,12 +16,14 @@ struct LocationsView: View {
     var body: some View {
         ZStack {
             mapLayer
-            
             VStack(spacing: 0) {
                 header
                 Spacer()
                 locationsPreviewStack
             }
+        }
+        .sheet(item: $vm.sheetLocation, onDismiss: nil) { location in
+            LocationDetailView(location: location)
         }
     }
 }
